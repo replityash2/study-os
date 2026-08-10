@@ -5,6 +5,7 @@ import { Sidebar } from './components/Sidebar';
 import { AuthProvider, useAuth } from './auth/useAuth';
 import { useCloudSync } from './hooks/useCloudSync';
 import { ComingSoonPage } from './pages/ComingSoonPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
 import { WorkspacePage } from './pages/WorkspacePage';
 
 function AuthenticatedApp() {
@@ -23,7 +24,7 @@ function StudyRouter() {
       <Sidebar />
       <Routes>
         <Route path="/workspace" element={<WorkspacePage />} />
-        <Route path="/analytics" element={<ComingSoonPage label="Analytics" />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/practice" element={<ComingSoonPage label="Practice" />} />
         <Route path="/bookmarks" element={<ComingSoonPage label="Bookmarks" />} />
         <Route path="/settings" element={<ComingSoonPage label="Settings" />} />

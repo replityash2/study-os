@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Ellipsis, Filter, Search, X } from 'lucide-react';
 import { Badge, Button, Card, IconButton, Input, ProgressBar, SegmentedToggle } from '../ui';
 import { SyncStatus } from '../SyncStatus';
@@ -8,6 +9,7 @@ import { useProgressStore } from '../../store/progressStore';
 import { SubjectRow } from './SubjectRow';
 
 export function SyllabusExplorer({ onClose }: { onClose?: () => void }) {
+  const navigate = useNavigate();
   const { exams, selectedExam, setExam, searchQuery, setSearchQuery } = useSyllabusStore();
   const [searchInput, setSearchInput] = useState(searchQuery);
   const [showOptions, setShowOptions] = useState(false);
@@ -91,7 +93,10 @@ export function SyllabusExplorer({ onClose }: { onClose?: () => void }) {
           <p className="text-[10px] text-slate-400">
             {progress.completedLeaves} / {progress.totalLeaves} Topics Completed
           </p>
-          <Button className="rounded-lg bg-white px-2 py-1 text-[10px] !text-primary shadow-none hover:bg-violet-100">
+          <Button
+            onClick={() => navigate('/analytics')}
+            className="rounded-lg bg-white px-2 py-1 text-[10px] !text-primary shadow-none hover:bg-violet-100"
+          >
             View Analytics
           </Button>
         </div>
