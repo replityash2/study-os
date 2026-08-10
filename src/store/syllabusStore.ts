@@ -5,6 +5,7 @@ import science from '../data/syllabus/2nd_Grade_Science_Syllabus.json';
 import gk from '../data/syllabus/2nd_Grade_GK_Syllabus.json';
 import { getCompletionAffectedIds, getTopicById, updateCompletion } from '../lib/progress';
 import { useProgressStore } from './progressStore';
+import { useActivityStore } from './activityStore';
 
 function normalizeTopic(
   topic: Omit<import('../types').Topic, 'progress' | 'children'> & {
@@ -71,6 +72,7 @@ export const useSyllabusStore = create<SyllabusState>((set) => ({
   toggleCompletion: (id, checked) =>
     set((state) => {
       const exam = state.exams[state.selectedExam];
+      const before = useProgressStore.getState().statusMap;
       const subjects = exam.subjects.map((subject) => ({
         ...subject,
         topics: updateCompletion(subject.topics, id, checked),
@@ -91,6 +93,9 @@ export const useSyllabusStore = create<SyllabusState>((set) => ({
         }),
       ) as Record<string, TopicStatus>;
       useProgressStore.getState().setStatuses(statusUpdates);
+      useActivityStore
+        .getState()
+        .recordCompletion(exam.exam, exam.subjects, before, statusUpdates, affectedIds);
       return { exams };
     }),
 }));

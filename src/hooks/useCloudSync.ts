@@ -12,6 +12,9 @@ import { localNotesAdapter } from '../services/notesAdapter';
 import { localAssetsAdapter } from '../services/assetsAdapter';
 import { firestoreAssetsAdapter } from '../services/firestoreAssetsAdapter';
 import { useAssetsStore } from '../store/assetsStore';
+import { useActivityStore } from '../store/activityStore';
+import { firestoreActivityAdapter } from '../services/firestoreActivityAdapter';
+import { localActivityAdapter, mergeActivityRecords } from '../services/activityAdapter';
 
 let reportedCloudError = false;
 
@@ -24,10 +27,60 @@ export function useCloudSync() {
   const hydrate = useProgressStore((state) => state.hydrate);
   const setAssetsAdapter = useAssetsStore((state) => state.setAdapter);
   const clearAssets = useAssetsStore((state) => state.clear);
+  const hydrateActivity = useActivityStore((state) => state.hydrate);
+  const replaceActivity = useActivityStore((state) => state.replace);
+  const setActivityAdapter = useActivityStore((state) => state.setAdapter);
 
   useEffect(() => {
     void hydrate(syllabi.map((syllabus) => syllabus.exam));
-  }, [hydrate]);
+    void hydrateActivity();
+  }, [hydrate, hydrateActivity]);
+
+  useEffect(() => {
+    if (!user) return;
+    const remote = firestoreActivityAdapter(user.uid);
+    let cancelled = false;
+    async function migrateActivity() {
+      try {
+        const [local, cloud] = await Promise.all([localActivityAdapter.list(), remote.list()]);
+        if (cancelled) return;
+        const merged = mergeActivityRecords(local, cloud);
+        replaceActivity(merged);
+        for (const record of merged) {
+          const remoteRecord = cloud.find((item) => item.date === record.date);
+          if (JSON.stringify(record) !== JSON.stringify(remoteRecord)) await remote.save(record);
+        }
+      } catch (error) {
+        console.warn('Study OS activity sync unavailable; continuing locally.', error);
+        setOffline(true);
+        setError('Activity sync unavailable — saving locally');
+      }
+    }
+    void migrateActivity();
+    return () => {
+      cancelled = true;
+    };
+  }, [replaceActivity, setError, setOffline, user]);
+
+  useEffect(() => {
+    const remote = user ? firestoreActivityAdapter(user.uid) : localActivityAdapter;
+    setActivityAdapter(
+      user
+        ? {
+            ...remote,
+            async save(record) {
+              try {
+                await remote.save(record);
+              } catch (error) {
+                console.warn('Study OS activity sync unavailable; continuing locally.', error);
+                setOffline(true);
+                setError('Activity sync unavailable — saving locally');
+              }
+            },
+          }
+        : localActivityAdapter,
+    );
+  }, [setActivityAdapter, setError, setOffline, user]);
 
   useEffect(() => {
     clearNotes();
