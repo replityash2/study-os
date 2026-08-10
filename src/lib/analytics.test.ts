@@ -4,6 +4,7 @@ import {
   calculateCurrentStreak,
   calculateLongestStreak,
   cumulativeSeries,
+  recentActivity,
   subjectBreakdown,
 } from './analytics';
 import type { ActivityRecord } from '../services/activityAdapter';
@@ -27,6 +28,14 @@ describe('analytics helpers', () => {
       completed: 0,
       uncompleted: 1,
     });
+  });
+  it('filters recent activity to days with selected-exam activity', () => {
+    expect(
+      recentActivity([
+        { date: '2025-01-01', completed: 0, uncompleted: 0 },
+        { date: '2025-01-02', completed: 1, uncompleted: 0 },
+      ]),
+    ).toEqual([{ date: '2025-01-02', completed: 1, uncompleted: 0 }]);
   });
   it('calculates current and longest streaks with gaps', () => {
     const activity = aggregateDailyActivity(records, 'e');

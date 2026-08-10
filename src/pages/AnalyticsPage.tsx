@@ -8,6 +8,7 @@ import {
   calculateCurrentStreak,
   calculateLongestStreak,
   cumulativeSeries,
+  recentActivity,
   statusDistribution,
   subjectBreakdown,
 } from '../lib/analytics';
@@ -82,7 +83,7 @@ export function AnalyticsPage() {
     (date) => activity.find((item) => item.date === date) ?? { date, completed: 0, uncompleted: 0 },
   );
   const hasHistory = activity.some((item) => item.completed || item.uncompleted);
-  const recent = [...activity].reverse().slice(0, 6);
+  const recent = recentActivity(activity);
   const cumulative = cumulativeSeries(activity, completed, dates);
   const last7 = daily.slice(-7).reduce((sum, item) => sum + item.completed, 0);
 
@@ -139,7 +140,7 @@ export function AnalyticsPage() {
           />
         </div>
         <div className="mt-5 grid gap-5 lg:grid-cols-2">
-          <Card className="p-5">
+          <Card className="min-w-0 p-5">
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h2 className="font-bold text-slate-800">Daily activity</h2>
@@ -160,7 +161,7 @@ export function AnalyticsPage() {
               />
             )}
           </Card>
-          <Card className="p-5">
+          <Card className="min-w-0 p-5">
             <div className="mb-4">
               <h2 className="font-bold text-slate-800">Cumulative completion</h2>
               <p className="text-xs text-slate-400">Current reality, reconstructed over time</p>

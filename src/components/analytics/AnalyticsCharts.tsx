@@ -3,18 +3,18 @@ import type { DailyActivity } from '../../lib/analytics';
 export function ActivityChart({ activity }: { activity: DailyActivity[] }) {
   const max = Math.max(1, ...activity.map((item) => item.completed + item.uncompleted));
   return (
-    <div className="flex h-44 items-end gap-1">
+    <div className="flex min-w-0 w-full h-44 items-end gap-1 overflow-hidden">
       {activity.map((item) => (
-        <div key={item.date} className="group flex h-full flex-1 flex-col justify-end">
-          <div className="relative flex h-full items-end justify-center gap-px">
+        <div key={item.date} className="group flex min-w-0 h-full flex-1 flex-col justify-end">
+          <div className="relative flex min-w-0 h-full items-end justify-center gap-px">
             <div
               title={`${item.date}: ${item.completed} completed`}
-              className="w-2 rounded-t bg-primary"
+              className="min-w-0 flex-1 rounded-t bg-primary"
               style={{ height: `${(item.completed / max) * 100}%` }}
             />
             <div
               title={`${item.date}: ${item.uncompleted} uncompleted`}
-              className="w-2 rounded-t bg-amber-300"
+              className="min-w-0 flex-1 rounded-t bg-amber-300"
               style={{ height: `${(item.uncompleted / max) * 100}%` }}
             />
           </div>

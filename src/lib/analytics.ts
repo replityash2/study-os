@@ -9,6 +9,13 @@ export interface DailyActivity {
   uncompleted: number;
 }
 
+export function recentActivity(activity: DailyActivity[], limit = 6): DailyActivity[] {
+  return activity
+    .filter((item) => item.completed > 0 || item.uncompleted > 0)
+    .reverse()
+    .slice(0, limit);
+}
+
 export function aggregateDailyActivity(records: ActivityRecord[], examId: string): DailyActivity[] {
   return records
     .map((record) => {
